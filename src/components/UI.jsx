@@ -3,8 +3,15 @@ import { useSensorStream } from './BackendCalls';
 import Settings from './Settings';
 
 const MotorBox = ({ title = "Motor" }) => {
-    const { sensorValue, isStreaming, error, startStream } = useSensorStream();
+    const { sensorValue, isStreaming, error, startStream, stopStream } = useSensorStream();
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [motorTitle, setMotorTitle] = useState(title);
+    const [rpm, setRpm] = useState('');
+
+    const handleApplyPreset = (preset) => {
+        setMotorTitle(preset.title);
+        setRpm(preset.rpm);
+    };
 
     return (
         <div className="motor-box rounded-lg p-6 w-auto min-w-[24rem] h-48 flex flex-col items-center justify-center space-y-4 bg-gray-100/50 shadow-md relative">
@@ -20,7 +27,7 @@ const MotorBox = ({ title = "Motor" }) => {
                 </span>
             </div>
 
-            <h3 className="text-lg font-semibold">{title}</h3>
+            <h3 className="text-lg font-semibold">{motorTitle}</h3>
             <div className="flex flex-row items-start space-x-6">
                 <div className="flex flex-col items-center space-y-1">
                     <span className="text-sm text-gray-600">Input</span>
@@ -41,11 +48,10 @@ const MotorBox = ({ title = "Motor" }) => {
                         />
                     </div>
                     <button
-                        onClick={startStream}
-                        disabled={isStreaming}
+                        onClick={isStreaming ? stopStream : startStream}
                         className="mt-6 px-2 py-1 bg-blue-500 text-black rounded hover:bg-blue-600 disabled:bg-gray-400"
                     >
-                        {isStreaming ? "Connected" : "Connect"}
+                        {isStreaming ? "Disconnect" : "Connect"}
                     </button>
                 </div>
             </div>
@@ -70,6 +76,7 @@ const MotorBox = ({ title = "Motor" }) => {
             <Settings 
                 isOpen={isSettingsOpen} 
                 onClose={() => setIsSettingsOpen(false)} 
+                onApplyPreset={handleApplyPreset}
             />
         </div>
     );
