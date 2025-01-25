@@ -2,6 +2,7 @@ import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
 import { useSensorStream } from "./components/BackendCalls";
+import { MotorBox } from "./components/UI";
 
 function App() {
   const { sensorValue, isStreaming, error, startStream } = useSensorStream();
@@ -24,6 +25,10 @@ function App() {
             Error: {error.toString()}
           </div>
         )}
+      </div>
+
+      <div className="mt-8 flex justify-center">
+        <MotorBox title="Motor 1" />
       </div>
     </div>
   );

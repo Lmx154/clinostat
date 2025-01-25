@@ -1,6 +1,7 @@
 mod mockserial;
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
+// This is where we make our Rust functions available to the frontend
 #[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
