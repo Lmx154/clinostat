@@ -1,10 +1,17 @@
 import React, { useState } from 'react';
 import Settings from './Settings';
+import { useSensorStream } from './BackendCalls';
 
-const MotorBox = ({ title = "Motor", isConnected = false, sensorValue = null }) => {
+const MotorBox = ({ title = "Motor" }) => {
+    const { sensorValue, isStreaming, error, startStream } = useSensorStream();
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [motorTitle, setMotorTitle] = useState(title);
     const [rpm, setRpm] = useState('');
+
+    // Add click handler for connection
+    const handleConnect = () => {
+        startStream();
+    };
 
     const handleApplyPreset = (preset) => {
         setMotorTitle(preset.title);
@@ -16,12 +23,12 @@ const MotorBox = ({ title = "Motor", isConnected = false, sensorValue = null }) 
             {/* Status Indicator */}
             <div className="absolute top-3 right-3 flex items-center gap-2 text-sm">
                 <span className={`h-2 w-2 rounded-full ${
-                    isConnected 
+                    isStreaming 
                         ? 'bg-green-500 animate-pulse' 
                         : 'bg-red-500'
                 }`}></span>
-                <span className="text-gray-600">
-                    {isConnected ? 'Online' : 'Offline'}
+                <span className="text-gray-600 cursor-pointer" onClick={handleConnect}>
+                    {isStreaming ? 'Online' : 'Connect'}
                 </span>
             </div>
 
@@ -40,7 +47,7 @@ const MotorBox = ({ title = "Motor", isConnected = false, sensorValue = null }) 
                     <input 
                         type="text" 
                         className="border rounded px-1 py-1 text-center w-20"
-                        value={sensorValue ?? "No data"}
+                        value={sensorValue !== null ? sensorValue : "No data"}
                         readOnly
                     />
                 </div>

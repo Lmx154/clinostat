@@ -97,33 +97,3 @@ pub async fn close_serial(
 
     Ok("Serial port closed successfully".to_string())
 }
-
-/// Internal debug function to monitor serial data in terminal
-pub fn monitor_serial_data(port: &mut Box<dyn SerialPort + Send>) {
-    let mut buffer = [0u8; 1024];
-    println!("Debug monitor started - watching serial data:");
-    println!("----------------------------------------");
-    
-    loop {
-        match port.read(&mut buffer) {
-            Ok(n) if n > 0 => {
-                if let Ok(data) = String::from_utf8(buffer[..n].to_vec()) {
-                    print!("{}", data);
-                }
-            }
-            Err(ref e) if e.kind() == std::io::ErrorKind::TimedOut => {
-                continue;
-            }
-            Err(e) => {
-                eprintln!("Error reading from port: {}", e);
-                break;
-            }
-            _ => {}
-        }
-    }
-}
-
-// Usage example - you can add this anywhere you want to debug:
-// if let Some(port) = connection.as_mut() {
-//     monitor_serial_data(port);
-// }

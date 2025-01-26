@@ -26,29 +26,35 @@ pub async fn establish_connection(
     }
 
     for port_name in ports {
+        println!("Testing port: {}", port_name);
         if let Ok(_) = crate::serial::open_serial(port_name.clone(), BAUD_RATE, serial_connection.clone()).await {
             let is_valid = {
                 let mut port = serial_connection.port.lock().unwrap();
                 if let Some(port) = port.as_mut() {
+                    println!("Starting validation for port: {}", port_name);
                     validate_data_format(port)
                 } else {
+                    println!("❌ No port available for validation");
                     false
                 }
             };
 
             if is_valid {
+                println!("✅ Port validated successfully: {}", port_name);
                 // Start the RPM parser in a new thread after validation
                 if let Ok(port) = serial_connection.port.lock().unwrap().as_mut().unwrap().try_clone() {
                     let window_clone = window.clone();
                     std::thread::spawn(move || {
                         // Move the port directly into the function
+                        
                         crate::data_operations::parse_and_emit_rpm(port, window_clone);
                     });
                 }
                 return Ok(format!("Connected successfully to {}", port_name));
+            } else {
+                println!("❌ Port validation failed: {}", port_name);
+                let _ = crate::serial::close_serial(serial_connection.clone()).await;
             }
-
-            let _ = crate::serial::close_serial(serial_connection.clone()).await;
         }
     }
 
@@ -56,42 +62,34 @@ pub async fn establish_connection(
 }
 
 fn validate_data_format(port: &mut Box<dyn SerialPort + Send>) -> bool {
-    // For debugging, uncomment the next line:
-    crate::serial::monitor_serial_data(port);
+    println!("Starting validation...");
     
     let start_time = Instant::now();
-    let mut buffer = [0u8; 128];  // Increased buffer size
+    let mut buffer = [0u8; 128];
     let mut accum = String::new();
 
-    // Longer timeout (5 seconds)
     while start_time.elapsed() < Duration::from_secs(5) {
         match port.read(&mut buffer) {
             Ok(n) => {
                 if let Ok(data) = String::from_utf8(buffer[..n].to_vec()) {
                     accum.push_str(&data);
-                    
-                    // Handle different line endings and search anywhere in the string
-                    if let Some(rpm_index) = accum.find("RPM1: ") {
-                        let value_str = &accum[rpm_index+6..];
-                        let end = value_str.find(|c| c == '\r' || c == '\n')
-                            .unwrap_or_else(|| value_str.len());
-                        
-                        if value_str[..end].trim().parse::<u16>().is_ok() {
-                            println!("Validation successful - correct data format");
-                            return true;
-                        }
+                    println!("Accumulating: {}", data.trim());
+                    if accum.contains("RPM") {
+                        println!("✅ Validation successful - found RPM data");
+                        return true;
                     }
                 }
             }
             Err(e) if e.kind() == ErrorKind::WouldBlock => {
                 std::thread::sleep(Duration::from_millis(50));
+                continue;
             }
             Err(e) => {
-                println!("Read error: {}", e);
+                println!("❌ Validation read error: {}", e);
                 return false;
             }
         }
     }
-    println!("Validation failed - no valid data received");
+    println!("❌ Validation failed - timeout reached");
     false
 }

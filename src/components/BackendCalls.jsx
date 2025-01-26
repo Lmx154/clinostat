@@ -12,9 +12,9 @@ export const useSensorStream = () => {
 
         const setupListener = async () => {
             try {
-                // Setup listener for sensor readings
-                unlisten = await listen('sensor-reading', (event) => {
-                    setSensorValue(event.payload.value);
+                // Update listener to match backend event name
+                unlisten = await listen('rpm-reading', (event) => {
+                    setSensorValue(event.payload.value); // Access the RPM value from the payload
                 });
             } catch (err) {
                 setError(err);
