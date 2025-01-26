@@ -31,9 +31,11 @@ export const useSensorStream = () => {
 
     const startStream = async () => {
         try {
+            const result = await invoke('establish_connection');
+            console.log('Connection result:', result);
             setIsStreaming(true);
-            await invoke('stream_sensor_data');
         } catch (err) {
+            console.error('Connection error:', err);
             setError(err);
             setIsStreaming(false);
         }

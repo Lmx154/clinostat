@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
-import { useSensorStream } from './BackendCalls';
 import Settings from './Settings';
 
-const MotorBox = ({ title = "Motor" }) => {
-    const { sensorValue, isStreaming, error, startStream, stopStream } = useSensorStream();
+const MotorBox = ({ title = "Motor", isConnected = false, sensorValue = null }) => {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [motorTitle, setMotorTitle] = useState(title);
     const [rpm, setRpm] = useState('');
@@ -18,12 +16,12 @@ const MotorBox = ({ title = "Motor" }) => {
             {/* Status Indicator */}
             <div className="absolute top-3 right-3 flex items-center gap-2 text-sm">
                 <span className={`h-2 w-2 rounded-full ${
-                    isStreaming 
+                    isConnected 
                         ? 'bg-green-500 animate-pulse' 
                         : 'bg-red-500'
                 }`}></span>
                 <span className="text-gray-600">
-                    {isStreaming ? 'Online' : 'Offline'}
+                    {isConnected ? 'Online' : 'Offline'}
                 </span>
             </div>
 
@@ -37,29 +35,16 @@ const MotorBox = ({ title = "Motor" }) => {
                         placeholder="Value 1"
                     />
                 </div>
-                <div className="flex items-start space-x-2">
-                    <div className="flex flex-col items-center space-y-1">
-                        <span className="text-sm text-gray-600">Actual</span>
-                        <input 
-                            type="text" 
-                            className="border rounded px-1 py-1 text-center w-20"
-                            value={sensorValue ?? "No data"}
-                            readOnly
-                        />
-                    </div>
-                    <button
-                        onClick={isStreaming ? stopStream : startStream}
-                        className="mt-6 px-1 py-1 bg-blue-500 text-black rounded hover:bg-blue-600 disabled:bg-gray-400"
-                    >
-                        {isStreaming ? "Disconnect" : "Connect"}
-                    </button>
+                <div className="flex flex-col items-center space-y-1">
+                    <span className="text-sm text-gray-600">Actual</span>
+                    <input 
+                        type="text" 
+                        className="border rounded px-1 py-1 text-center w-20"
+                        value={sensorValue ?? "No data"}
+                        readOnly
+                    />
                 </div>
             </div>
-            {error && (
-                <div className="text-red-500 text-xs">
-                    Error: {error.toString()}
-                </div>
-            )}
             <svg 
                 onClick={() => setIsSettingsOpen(true)}
                 xmlns="http://www.w3.org/2000/svg" 
