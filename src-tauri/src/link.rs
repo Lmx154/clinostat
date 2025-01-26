@@ -53,6 +53,9 @@ pub async fn establish_connection(
 }
 
 fn validate_data_format(port: &mut Box<dyn SerialPort + Send>) -> bool {
+    // For debugging, uncomment the next line:
+    crate::serial::monitor_serial_data(port);
+    
     let start_time = Instant::now();
     let mut buffer = [0u8; 128];  // Increased buffer size
     let mut accum = String::new();
