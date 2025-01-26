@@ -65,7 +65,10 @@ pub async fn open_serial(
     // 3) Attempt to open the port
     println!("Creating new serial port connection...");
     match serialport::new(&port_name, baud_rate)
-        .timeout(Duration::from_millis(2000))  // Using 2-second blocking timeout
+        .data_bits(serialport::DataBits::Eight)
+        .stop_bits(serialport::StopBits::One)
+        .parity(serialport::Parity::None)
+        .timeout(Duration::from_secs(5))  // Longer timeout
         .open()
     {
         Ok(port) => {

@@ -53,46 +53,39 @@ pub async fn establish_connection(
 }
 
 fn validate_data_format(port: &mut Box<dyn SerialPort + Send>) -> bool {
-    // We’ll read in a loop until we either find "RPM1: " or time out
     let start_time = Instant::now();
-    let mut buffer = [0u8; 64];
+    let mut buffer = [0u8; 128];  // Increased buffer size
     let mut accum = String::new();
 
-    // We'll wait up to ~2 seconds for valid data
-    while start_time.elapsed() < Duration::from_secs(2) {
+    // Longer timeout (5 seconds)
+    while start_time.elapsed() < Duration::from_secs(5) {
         match port.read(&mut buffer) {
-            Ok(0) => {
-                // Nothing read yet, small pause before next read
-                std::thread::sleep(Duration::from_millis(50));
-            }
             Ok(n) => {
                 if let Ok(data) = String::from_utf8(buffer[..n].to_vec()) {
                     accum.push_str(&data);
-                    // Check if our accumulated data contains something like "RPM1: 123"
-                    if let Some(segment) = accum.strip_prefix("RPM1: ") {
-                        if let Some(end_idx) = segment.find('\n') {
-                            let raw_num = &segment[..end_idx].trim();
-                            if raw_num.parse::<u8>().is_ok() {
-                                println!("Valid data found: RPM1: {}", raw_num);
-                                return true;
-                            }
-                        } else if let Ok(_val) = segment.trim().parse::<u8>() {
-                            println!("Valid data found: RPM1: {}", segment.trim());
+                    
+                    // Handle different line endings and search anywhere in the string
+                    if let Some(rpm_index) = accum.find("RPM1: ") {
+                        let value_str = &accum[rpm_index+6..];
+                        let end = value_str.find(|c| c == '\r' || c == '\n')
+                            .unwrap_or_else(|| value_str.len());
+                        
+                        if value_str[..end].trim().parse::<u16>().is_ok() {
+                            println!("Validation successful - correct data format");
                             return true;
                         }
                     }
                 }
             }
+            Err(e) if e.kind() == ErrorKind::WouldBlock => {
+                std::thread::sleep(Duration::from_millis(50));
+            }
             Err(e) => {
-                if e.kind() == ErrorKind::WouldBlock {
-                    // No data yet
-                    std::thread::sleep(Duration::from_millis(50));
-                } else {
-                    println!("Error reading from port: {}", e);
-                    return false;
-                }
+                println!("Read error: {}", e);
+                return false;
             }
         }
     }
+    println!("Validation failed - no valid data received");
     false
 }
