@@ -229,6 +229,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "atomic"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8d818003e740b63afc82337e3160717f4f63078720a810b7b903e70a5d1d2994"
+dependencies = [
+ "bytemuck",
+]
+
+[[package]]
 name = "atomic-waker"
 version = "1.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -499,6 +508,7 @@ dependencies = [
 name = "clinostat-controller"
 version = "0.1.0"
 dependencies = [
+ "atomic",
  "rand 0.8.5",
  "serde",
  "serde_json",

@@ -1,17 +1,10 @@
 import React, { useState } from 'react';
 import Settings from './Settings';
-import { useSensorStream } from './BackendCalls';
 
-const MotorBox = ({ title = "Motor" }) => {
-    const { sensorValue, isStreaming, error, startStream } = useSensorStream();
+const MotorBox = ({ title = "Motor", isConnected = false, sensorValue = null }) => {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [motorTitle, setMotorTitle] = useState(title);
     const [rpm, setRpm] = useState('');
-
-    // Add click handler for connection
-    const handleConnect = () => {
-        startStream();
-    };
 
     const handleApplyPreset = (preset) => {
         setMotorTitle(preset.title);
@@ -23,12 +16,12 @@ const MotorBox = ({ title = "Motor" }) => {
             {/* Status Indicator */}
             <div className="absolute top-3 right-3 flex items-center gap-2 text-sm">
                 <span className={`h-2 w-2 rounded-full ${
-                    isStreaming 
+                    isConnected 
                         ? 'bg-green-500 animate-pulse' 
                         : 'bg-red-500'
                 }`}></span>
-                <span className="text-gray-600 cursor-pointer" onClick={handleConnect}>
-                    {isStreaming ? 'Online' : 'Connect'}
+                <span className="text-gray-600">
+                    {isConnected ? 'Online' : 'Offline'}
                 </span>
             </div>
 

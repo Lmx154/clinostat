@@ -19,6 +19,7 @@ pub struct SerialConnection {
     pub stop_flag: Arc<AtomicBool>,
 }
 
+
 /// Lists all available serial ports on the system
 #[tauri::command]
 pub fn list_serial_ports() -> Result<Vec<String>, String> {
@@ -80,18 +81,18 @@ pub async fn open_serial(
 pub async fn close_serial(
     serial_connection: State<'_, SerialConnection>,
 ) -> Result<String, String> {
+    // Set stop flag before acquiring the lock to ensure parser sees it
+    serial_connection
+        .stop_flag
+        .store(true, Ordering::SeqCst);  // Changed to SeqCst for stricter ordering
+
+    std::thread::sleep(std::time::Duration::from_millis(100));  // Give parser time to stop
+
     {
         let mut connection = serial_connection.port.lock().unwrap();
         if connection.is_none() {
             return Err("No active serial connection to close".to_string());
         }
-
-        // 1) Set the stop flag so the parsing thread breaks out
-        serial_connection
-            .stop_flag
-            .store(true, Ordering::Relaxed);
-
-        // 2) Drop the actual port handle
         *connection = None;
     }
 

@@ -41,13 +41,11 @@ pub async fn establish_connection(
 
             if is_valid {
                 println!("✅ Port validated successfully: {}", port_name);
-                // Start the RPM parser in a new thread after validation
                 if let Ok(port) = serial_connection.port.lock().unwrap().as_mut().unwrap().try_clone() {
                     let window_clone = window.clone();
+                    let stop_flag = serial_connection.stop_flag.clone();
                     std::thread::spawn(move || {
-                        // Move the port directly into the function
-                        
-                        crate::data_operations::parse_and_emit_rpm(port, window_clone);
+                        crate::data_operations::parse_and_emit_rpm(port, window_clone, stop_flag);
                     });
                 }
                 return Ok(format!("Connected successfully to {}", port_name));

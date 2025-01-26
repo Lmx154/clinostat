@@ -6,6 +6,8 @@ use std::time::SystemTime;
 use tauri::{Window, Emitter};
 use std::io::Read;
 use serialport::SerialPort;
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};  // Fixed import path for AtomicBool
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct RpmReading {
@@ -14,13 +16,17 @@ pub struct RpmReading {
 }
 
 // Change signature to take ownership of port directly
-pub fn parse_and_emit_rpm(mut port: Box<dyn SerialPort + Send>, window: Window) {
+pub fn parse_and_emit_rpm(
+    mut port: Box<dyn SerialPort + Send>, 
+    window: Window, 
+    stop_flag: Arc<AtomicBool>
+) {
     let mut buffer = [0u8; 1024];
     let mut accumulated = String::new();
 
     println!("Starting RPM parser...");
 
-    loop {
+    while !stop_flag.load(Ordering::SeqCst) {
         match port.read(&mut buffer) {
             Ok(n) if n > 0 => {
                 if let Ok(data) = String::from_utf8(buffer[..n].to_vec()) {
@@ -52,7 +58,13 @@ pub fn parse_and_emit_rpm(mut port: Box<dyn SerialPort + Send>, window: Window) 
                     }
                 }
             }
-            Err(ref e) if e.kind() == std::io::ErrorKind::TimedOut => continue,
+            Err(ref e) if e.kind() == std::io::ErrorKind::TimedOut => {
+                if stop_flag.load(Ordering::SeqCst) {
+                    println!("Stop flag detected, stopping parser");
+                    break;
+                }
+                continue;
+            }
             Err(e) => {
                 eprintln!("Error reading from port: {}", e);
                 break;
@@ -60,4 +72,5 @@ pub fn parse_and_emit_rpm(mut port: Box<dyn SerialPort + Send>, window: Window) 
             _ => {}
         }
     }
+    println!("RPM parser stopped");
 }

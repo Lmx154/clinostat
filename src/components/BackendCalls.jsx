@@ -41,10 +41,22 @@ export const useSensorStream = () => {
         }
     };
 
+    const stopStream = async () => {
+        try {
+            await invoke('close_serial');  // Changed from 'close_serial_connection' to 'close_serial'
+            setIsStreaming(false);
+        } catch (err) {
+            console.error('Disconnect error:', err);
+            setError(err);
+        }
+    };
+
     return {
         sensorValue,
         isStreaming,
+        setIsStreaming,  // Export this so App.jsx can control it
         error,
-        startStream
+        startStream,
+        stopStream  // Add stopStream to the returned object
     };
 };

@@ -6,15 +6,14 @@ import "./App.css";
 
 function App() {
   const [isSystemSettingsOpen, setIsSystemSettingsOpen] = useState(false);
-  const { sensorValue, isStreaming, error, startStream } = useSensorStream();
+  const { sensorValue, isStreaming, error, startStream, stopStream } = useSensorStream();
 
   const handleConnectionToggle = async (e) => {
     try {
       if (e.target.checked) {
         await startStream();
       } else {
-        // TODO: Implement disconnect logic when needed
-        setIsStreaming(false);
+        await stopStream();
       }
     } catch (err) {
       console.error("Connection toggle error:", err);
