@@ -14,7 +14,7 @@ const MotorBox = ({ title = "Motor" }) => {
     };
 
     return (
-        <div className="motor-box rounded-lg p-6 w-auto min-w-[24rem] h-48 flex flex-col items-center justify-center space-y-4 bg-gray-100/50 shadow-md relative">
+        <div className="motor-box rounded-lg p-4 w-auto min-w-[20rem] h-48 flex flex-col items-center justify-center space-y-4 bg-gray-100/50 shadow-md relative">
             {/* Status Indicator */}
             <div className="absolute top-3 right-3 flex items-center gap-2 text-sm">
                 <span className={`h-2 w-2 rounded-full ${
@@ -28,28 +28,28 @@ const MotorBox = ({ title = "Motor" }) => {
             </div>
 
             <h3 className="text-lg font-semibold">{motorTitle}</h3>
-            <div className="flex flex-row items-start space-x-6">
+            <div className="flex flex-row items-start space-x-4">
                 <div className="flex flex-col items-center space-y-1">
                     <span className="text-sm text-gray-600">Input</span>
                     <input 
                         type="text" 
-                        className="border rounded px-2 py-1 text-center w-24"
+                        className="border rounded px-1 py-1 text-center w-20"
                         placeholder="Value 1"
                     />
                 </div>
-                <div className="flex items-start space-x-3">
+                <div className="flex items-start space-x-2">
                     <div className="flex flex-col items-center space-y-1">
                         <span className="text-sm text-gray-600">Actual</span>
                         <input 
                             type="text" 
-                            className="border rounded px-2 py-1 text-center w-24"
+                            className="border rounded px-1 py-1 text-center w-20"
                             value={sensorValue ?? "No data"}
                             readOnly
                         />
                     </div>
                     <button
                         onClick={isStreaming ? stopStream : startStream}
-                        className="mt-6 px-2 py-1 bg-blue-500 text-black rounded hover:bg-blue-600 disabled:bg-gray-400"
+                        className="mt-6 px-1 py-1 bg-blue-500 text-black rounded hover:bg-blue-600 disabled:bg-gray-400"
                     >
                         {isStreaming ? "Disconnect" : "Connect"}
                     </button>

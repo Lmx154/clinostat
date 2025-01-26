@@ -8,8 +8,18 @@ function App() {
 
   return (
     <div className="container">
-      <div className="mt-8 flex justify-center">
-        <MotorBox title="Motor 1" />
+      <div className="grid-container">
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 place-items-center px-6 pb-20">
+          <MotorBox title="Motor 1" />
+          <MotorBox title="Motor 2" />
+          <MotorBox title="Motor 3" />
+          <MotorBox title="Motor 4" />
+          <MotorBox title="Motor 5" />
+          <MotorBox title="Motor 6" />
+          <MotorBox title="Motor 7" />
+          <MotorBox title="Motor 8" />
+          <MotorBox title="Motor 9" />
+        </div>
       </div>
 
       <svg 

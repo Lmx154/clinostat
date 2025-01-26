@@ -2,6 +2,8 @@
 
 A modern desktop application for controlling and monitoring motor RPM in clinostat systems. Built with Tauri 2.0, combining the performance of Rust with a React frontend.
 
+![Clinostat Controller Interface](/public/image.png)
+
 ## ✨ Features
 
 ### 🎛️ Motor Control
