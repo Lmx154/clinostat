@@ -13,8 +13,8 @@
   line-height: 24px;
   font-weight: 400;
 
-  color: #0f0f0f;
-  background-color: #f6f6f6;
+  color: #000000;
+  background-color: #ffffff;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -99,8 +99,8 @@ button {
 
 @media (prefers-color-scheme: dark) {
   :root {
-    color: #f6f6f6;
-    background-color: #2f2f2f;
+    color: #000000;
+    background-color: #ffffff;
   }
 
   a:hover {
@@ -109,8 +109,8 @@ button {
 
   input,
   button {
-    color: #ffffff;
-    background-color: #0f0f0f98;
+    color: #000000;
+    background-color: #ffffff;
   }
   button:active {
     background-color: #0f0f0f69;
