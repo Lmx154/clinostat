@@ -21,25 +21,31 @@ const MotorBox = ({ title = "Motor" }) => {
             </div>
 
             <h3 className="text-lg font-semibold">{title}</h3>
-            <div className="flex flex-row items-center space-x-6">
-                <input 
-                    type="text" 
-                    className="border rounded px-2 py-1 text-center w-24"
-                    placeholder="Value 1"
-                />
-                <div className="flex items-center space-x-3">
+            <div className="flex flex-row items-start space-x-6">
+                <div className="flex flex-col items-center space-y-1">
+                    <span className="text-sm text-gray-600">Input</span>
                     <input 
                         type="text" 
                         className="border rounded px-2 py-1 text-center w-24"
-                        value={sensorValue ?? "No data"}
-                        readOnly
+                        placeholder="Value 1"
                     />
+                </div>
+                <div className="flex items-start space-x-3">
+                    <div className="flex flex-col items-center space-y-1">
+                        <span className="text-sm text-gray-600">Actual</span>
+                        <input 
+                            type="text" 
+                            className="border rounded px-2 py-1 text-center w-24"
+                            value={sensorValue ?? "No data"}
+                            readOnly
+                        />
+                    </div>
                     <button
                         onClick={startStream}
                         disabled={isStreaming}
-                        className="px-2 py-1 bg-blue-500 text-black rounded hover:bg-blue-600 disabled:bg-gray-400"
+                        className="mt-6 px-2 py-1 bg-blue-500 text-black rounded hover:bg-blue-600 disabled:bg-gray-400"
                     >
-                        {isStreaming ? "✓" : "→"}
+                        {isStreaming ? "Connected" : "Connect"}
                     </button>
                 </div>
             </div>
