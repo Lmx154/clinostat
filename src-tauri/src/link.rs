@@ -7,6 +7,8 @@
 use serialport::SerialPort;
 use tauri::State;
 use crate::serial::SerialConnection;
+use std::time::{Duration, Instant};
+use std::io::{ErrorKind, Read};
 
 const BAUD_RATE: u32 = 9600;
 
@@ -51,21 +53,46 @@ pub async fn establish_connection(
 }
 
 fn validate_data_format(port: &mut Box<dyn SerialPort + Send>) -> bool {
-    let mut buffer = [0; 64];
-    
-    // Read some data with timeout
-    match port.bytes_to_read() {
-        Ok(0) => return false,
-        Ok(_) => {
-            if let Ok(bytes_read) = port.read(&mut buffer) {
-                if let Ok(data) = String::from_utf8(buffer[..bytes_read].to_vec()) {
-                    // Check if data matches expected format
-                    return data.split(',')
-                        .all(|s| s.trim().parse::<f64>().is_ok());
+    // We’ll read in a loop until we either find "RPM1: " or time out
+    let start_time = Instant::now();
+    let mut buffer = [0u8; 64];
+    let mut accum = String::new();
+
+    // We'll wait up to ~2 seconds for valid data
+    while start_time.elapsed() < Duration::from_secs(2) {
+        match port.read(&mut buffer) {
+            Ok(0) => {
+                // Nothing read yet, small pause before next read
+                std::thread::sleep(Duration::from_millis(50));
+            }
+            Ok(n) => {
+                if let Ok(data) = String::from_utf8(buffer[..n].to_vec()) {
+                    accum.push_str(&data);
+                    // Check if our accumulated data contains something like "RPM1: 123"
+                    if let Some(segment) = accum.strip_prefix("RPM1: ") {
+                        if let Some(end_idx) = segment.find('\n') {
+                            let raw_num = &segment[..end_idx].trim();
+                            if raw_num.parse::<u8>().is_ok() {
+                                println!("Valid data found: RPM1: {}", raw_num);
+                                return true;
+                            }
+                        } else if let Ok(_val) = segment.trim().parse::<u8>() {
+                            println!("Valid data found: RPM1: {}", segment.trim());
+                            return true;
+                        }
+                    }
                 }
             }
-        },
-        Err(_) => return false
+            Err(e) => {
+                if e.kind() == ErrorKind::WouldBlock {
+                    // No data yet
+                    std::thread::sleep(Duration::from_millis(50));
+                } else {
+                    println!("Error reading from port: {}", e);
+                    return false;
+                }
+            }
+        }
     }
     false
 }
