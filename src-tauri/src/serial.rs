@@ -19,16 +19,6 @@ pub struct SerialConnection {
     pub stop_flag: Arc<AtomicBool>,
 }
 
-// impl SerialConnection {
-//     /// Create a new `SerialConnection` with no open port and `stop_flag=false`
-//     pub fn new() -> Self {
-//         Self {
-//             port: Mutex::new(None),
-//             stop_flag: Arc::new(AtomicBool::new(false)),
-//         }
-//     }
-// }
-
 /// Lists all available serial ports on the system
 #[tauri::command]
 pub fn list_serial_ports() -> Result<Vec<String>, String> {

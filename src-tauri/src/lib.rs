@@ -1,5 +1,6 @@
 mod serial;
 mod link;
+mod data_operations;
 
 use serial::SerialConnection;
 use std::sync::atomic::AtomicBool;

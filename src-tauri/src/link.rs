@@ -3,6 +3,7 @@
 //after opening we will verify that the data output of the serial port is in the format that we need
 //if the format is correct, keep this serial port open and use it in the parsed data function in dataoperations.rs,
 //else if the format is not correct, close the serial port and try the next serial port.
+//link.rs
 
 use serialport::SerialPort;
 use tauri::State;
@@ -12,9 +13,9 @@ use std::io::{ErrorKind, Read};
 
 const BAUD_RATE: u32 = 9600;
 
-
 #[tauri::command]
 pub async fn establish_connection(
+    window: tauri::Window,
     serial_connection: State<'_, SerialConnection>
 ) -> Result<String, String> {
     let ports = crate::serial::list_serial_ports()
@@ -25,9 +26,7 @@ pub async fn establish_connection(
     }
 
     for port_name in ports {
-        // Try to open the port with proper arguments
         if let Ok(_) = crate::serial::open_serial(port_name.clone(), BAUD_RATE, serial_connection.clone()).await {
-            // Validate in a separate block to ensure MutexGuard is dropped
             let is_valid = {
                 let mut port = serial_connection.port.lock().unwrap();
                 if let Some(port) = port.as_mut() {
@@ -35,17 +34,21 @@ pub async fn establish_connection(
                 } else {
                     false
                 }
-            }; // MutexGuard is dropped here
+            };
 
             if is_valid {
+                // Start the RPM parser in a new thread after validation
+                if let Ok(port) = serial_connection.port.lock().unwrap().as_mut().unwrap().try_clone() {
+                    let window_clone = window.clone();
+                    std::thread::spawn(move || {
+                        // Move the port directly into the function
+                        crate::data_operations::parse_and_emit_rpm(port, window_clone);
+                    });
+                }
                 return Ok(format!("Connected successfully to {}", port_name));
             }
 
-            // If validation fails, close the port
             let _ = crate::serial::close_serial(serial_connection.clone()).await;
-        } else {
-            println!("Failed to open {}", port_name);
-            continue;
         }
     }
 
