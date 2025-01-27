@@ -24,10 +24,12 @@ function App() {
 
   return (
     <div 
-      className="container min-h-screen w-full bg-cover bg-center bg-no-repeat relative z-0" 
+      className="min-h-screen w-full bg-fixed bg-cover bg-center bg-no-repeat relative z-0" 
       style={{ 
         backgroundImage: `url(${wallpaper})`,
-        backgroundColor: '#f0f0f0' // Fallback color
+        backgroundColor: '#f0f0f0', // Fallback color
+        minHeight: '100vh',
+        width: '100vw',
       }}
     >
       <div className="grid-container">
