@@ -12,7 +12,8 @@ const MotorBox = ({ title = "Motor", isConnected = false, sensorValue = null }) 
     };
 
     return (
-        <div className="motor-box rounded-lg p-4 w-auto min-w-[20rem] h-48 flex flex-col items-center justify-center space-y-4 bg-gradient-to-b from-gray-50 to-gray-100/90 shadow-lg relative border border-gray-200/50">
+        <div className="motor-box rounded-lg p-19 w-auto min-w-[20rem] h-75 flex flex-col items-center justify-center space-y-4 bg-gradient-to-b from-gray-50 to-gray-100/90 shadow-lg relative border border-gray-200/50">
+           
             {/* Status Indicator with Cog Assembly */}
             <div className="absolute top-3 right-3 flex items-center gap-0 text-sm">
                 <div className="flex items-start scale-75 mr-1">
@@ -57,15 +58,15 @@ const MotorBox = ({ title = "Motor", isConnected = false, sensorValue = null }) 
                         </svg>
                     </div>
                 </div>
-                <span className="text-gray-600 -ml-2">
+                <span className="text-green-600 -ml-2">
                     {isConnected ? 'Online' : 'Offline'}
                 </span>
             </div>
 
             <h3 className="text-lg font-semibold">{motorTitle}</h3>
-            <div className="flex flex-row items-start space-x-4">
+            <div className="flex flex-row items-start space-x-10">
                 <div className="flex flex-col items-center space-y-1">
-                    <span className="text-sm text-gray-600">Input</span>
+                    <span className="text-3xl text-gray-600">Input</span>
                     <input 
                         type="text" 
                         className="border rounded px-1 py-1 text-center w-20"
@@ -73,7 +74,7 @@ const MotorBox = ({ title = "Motor", isConnected = false, sensorValue = null }) 
                     />
                 </div>
                 <div className="flex flex-col items-center space-y-1">
-                    <span className="text-sm text-gray-600">Actual</span>
+                    <span className="text-3xl text-gray-600">Actual</span>
                     <input 
                         type="text" 
                         className="border rounded px-1 py-1 text-center w-20"
