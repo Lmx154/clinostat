@@ -34,7 +34,7 @@ function App() {
     >
       <div className="grid-container">
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 place-items-center px-6 pb-20">
-          {Array.from({ length: 9 }, (_, i) => (
+          {Array.from({ length: 2 }, (_, i) => (
             <MotorBox 
               key={i} 
               title={`Motor ${i + 1}`} 

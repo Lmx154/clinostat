@@ -1,36 +1,64 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { usePresetManager } from './BackendCalls';
 
 const Settings = ({ isOpen, onClose, onApplyPreset }) => {
-    const [presets, setPresets] = useState([]);
-    const [newPreset, setNewPreset] = useState({ title: '', rpm: '' });
+    const { presets, isLoading, addPreset, deletePreset } = usePresetManager();
+    const [newPresetRpm, setNewPresetRpm] = useState('');
     const [isAddingPreset, setIsAddingPreset] = useState(false);
 
-    const handleAddPreset = () => {
-        setPresets([...presets, newPreset]);
-        setNewPreset({ title: '', rpm: '' });
-        setIsAddingPreset(false);
+    const handleAddPreset = async () => {
+        if (!newPresetRpm || isLoading) return;
+        
+        try {
+            await addPreset(newPresetRpm);
+            setNewPresetRpm('');
+            setIsAddingPreset(false);
+        } catch (error) {
+            console.error('Failed to add preset:', error);
+        }
     };
 
-    const handleApplyPreset = (preset) => {
-        onApplyPreset(preset);
+    const handleApplyPreset = (rpm) => {
+        onApplyPreset(rpm);
         onClose();
+    };
+
+    const handleDeletePreset = async (rpm) => {
+        try {
+            await deletePreset(rpm);
+        } catch (error) {
+            console.error('Failed to delete preset:', error);
+        }
+    };
+
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            handleAddPreset();
+        } else if (e.key === 'Escape') {
+            setIsAddingPreset(false);
+        }
+    };
+
+    // Prevent modal from closing while loading
+    const handleClose = () => {
+        if (!isLoading) {
+            onClose();
+        }
     };
 
     if (!isOpen) return null;
 
     return (
-        <div 
-            className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50"
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50"
             onClick={(e) => {
-                if (e.target === e.currentTarget) onClose();
+                if (e.target === e.currentTarget) handleClose();
             }}
         >
-            <div 
-                className="bg-gray-100/95 rounded-lg p-6 w-96 relative shadow-lg"
+            <div className="bg-gray-100/95 rounded-lg p-6 w-96 relative shadow-lg"
                 onClick={e => e.stopPropagation()}
             >
                 <svg 
-                    onClick={onClose}
+                    onClick={handleClose}
                     xmlns="http://www.w3.org/2000/svg" 
                     className="h-6 w-6 absolute top-4 right-4 text-red-500 hover:text-red-700 cursor-pointer drop-shadow-md transition-colors duration-200"
                     fill="none" 
@@ -45,17 +73,26 @@ const Settings = ({ isOpen, onClose, onApplyPreset }) => {
                     />
                 </svg>
 
-                <h2 className="text-2xl font-bold mb-4">Settings</h2>
+                <h2 className="text-2xl font-bold mb-4">Presets</h2>
                 
                 <div className="space-y-4">
-                    {presets.map((preset, index) => (
+                    {presets.map((rpm, index) => (
                         <div 
-                            key={index} 
-                            className="preset-item p-2 border rounded cursor-pointer hover:bg-gray-200"
-                            onClick={() => handleApplyPreset(preset)}
+                            key={`${rpm}-${index}`}  // Better key for React
+                            className="preset-item p-2 border rounded flex justify-between items-center"
                         >
-                            <h3 className="text-lg font-semibold">{preset.title}</h3>
-                            <p>RPM: {preset.rpm}</p>
+                            <span onClick={() => !isLoading && handleApplyPreset(rpm)} 
+                                  className={`cursor-pointer flex-grow ${isLoading ? 'opacity-50' : ''}`}>
+                                RPM: {rpm}
+                            </span>
+                            <button 
+                                onClick={() => handleDeletePreset(rpm)}
+                                disabled={isLoading}
+                                className={`ml-2 text-red-500 hover:text-red-700 
+                                    ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            >
+                                ×
+                            </button>
                         </div>
                     ))}
                 </div>
@@ -68,53 +105,35 @@ const Settings = ({ isOpen, onClose, onApplyPreset }) => {
                 </button>
 
                 {isAddingPreset && (
-                    <div 
-                        className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50"
+                    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50"
                         onClick={(e) => {
-                            if (e.target === e.currentTarget) setIsAddingPreset(false);
+                            if (e.target === e.currentTarget && !isLoading) {
+                                setIsAddingPreset(false);
+                            }
                         }}
                     >
-                        <div 
-                            className="bg-gray-100/95 rounded-lg p-6 w-96 relative shadow-lg"
+                        <div className="bg-gray-100/95 rounded-lg p-6 w-96 relative shadow-lg"
                             onClick={e => e.stopPropagation()}
                         >
-                            <svg 
-                                onClick={() => setIsAddingPreset(false)}
-                                xmlns="http://www.w3.org/2000/svg" 
-                                className="h-6 w-6 absolute top-4 right-4 text-red-500 hover:text-red-700 cursor-pointer drop-shadow-md transition-colors duration-200"
-                                fill="none" 
-                                viewBox="0 0 24 24" 
-                                stroke="currentColor"
-                            >
-                                <path 
-                                    strokeLinecap="round" 
-                                    strokeLinejoin="round" 
-                                    strokeWidth={2} 
-                                    d="M6 18L18 6M6 6l12 12" 
-                                />
-                            </svg>
-
                             <h2 className="text-2xl font-bold mb-4">Add Preset</h2>
                             
                             <input 
-                                type="text" 
-                                placeholder="Preset Title" 
-                                value={newPreset.title} 
-                                onChange={(e) => setNewPreset({ ...newPreset, title: e.target.value })} 
-                                className="w-full mb-2 p-2 border rounded"
-                            />
-                            <input 
                                 type="number" 
                                 placeholder="RPM" 
-                                value={newPreset.rpm} 
-                                onChange={(e) => setNewPreset({ ...newPreset, rpm: e.target.value })} 
+                                value={newPresetRpm} 
+                                onChange={(e) => setNewPresetRpm(e.target.value)}
+                                onKeyPress={handleKeyPress}
+                                disabled={isLoading}
                                 className="w-full mb-2 p-2 border rounded"
+                                autoFocus
                             />
                             <button 
                                 onClick={handleAddPreset} 
-                                className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                disabled={isLoading || !newPresetRpm}
+                                className={`w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600 
+                                    ${(isLoading || !newPresetRpm) ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
-                                Accept
+                                {isLoading ? 'Adding...' : 'Add'}
                             </button>
                         </div>
                     </div>

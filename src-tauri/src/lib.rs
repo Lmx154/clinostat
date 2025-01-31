@@ -1,6 +1,7 @@
 mod serial;
 mod link;
 mod data_operations;
+mod file_operations;
 
 use serial::SerialConnection;
 use std::sync::atomic::AtomicBool;
@@ -15,6 +16,11 @@ pub fn run() {
         stop_flag: Arc::new(AtomicBool::new(false)),
     };
 
+    // Initialize presets file when the application starts
+    if let Err(e) = file_operations::initialize_presets() {
+        eprintln!("Failed to initialize presets: {}", e);
+    }
+
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .manage(serial_connection)
@@ -23,7 +29,11 @@ pub fn run() {
             serial::list_serial_ports,
             serial::open_serial,
             serial::close_serial,
-            link::establish_connection
+            link::establish_connection,
+            file_operations::read_presets,
+            file_operations::add_preset,
+            file_operations::update_preset,
+            file_operations::delete_preset
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

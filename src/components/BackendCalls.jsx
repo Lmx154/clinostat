@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { invoke } from "@tauri-apps/api/core"; // Tauri API calls
 import { listen } from '@tauri-apps/api/event'; // Tauri API calls for listeners
 
@@ -58,5 +58,64 @@ export const useSensorStream = () => {
         error,
         startStream,
         stopStream  // Add stopStream to the returned object
+    };
+};
+
+export const usePresetManager = () => {
+    const [presets, setPresets] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    const loadPresets = useCallback(async () => {
+        if (isLoading) return;
+        setIsLoading(true);
+        try {
+            const presetList = await invoke('read_presets');
+            setPresets(Array.isArray(presetList) ? presetList : []);
+        } catch (err) {
+            setError(err);
+            console.error('Failed to load presets:', err);
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    const addPreset = async (rpm) => {
+        setIsLoading(true);
+        try {
+            await invoke('add_preset', { rpm: parseInt(rpm) });
+            await loadPresets();
+        } catch (err) {
+            setError(err);
+            console.error('Failed to add preset:', err);
+            throw err;
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const deletePreset = async (rpm) => {
+        setIsLoading(true);
+        try {
+            await invoke('delete_preset', { rpm: parseInt(rpm) });
+            await loadPresets();
+        } catch (err) {
+            setError(err);
+            console.error('Failed to delete preset:', err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        loadPresets();
+    }, [loadPresets]);
+
+    return {
+        presets,
+        isLoading,
+        error,
+        addPreset,
+        deletePreset
     };
 };
