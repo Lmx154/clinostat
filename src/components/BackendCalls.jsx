@@ -14,7 +14,8 @@ export const useSensorStream = () => {
             try {
                 // Update listener to match backend event name
                 unlisten = await listen('rpm-reading', (event) => {
-                    setSensorValue(event.payload.value); // Access the RPM value from the payload
+                    // Update to store the entire array of RPM values
+                    setSensorValue(event.payload.values);
                 });
             } catch (err) {
                 setError(err);

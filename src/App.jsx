@@ -39,7 +39,7 @@ function App() {
               key={i} 
               title={`Motor ${i + 1}`} 
               isConnected={isStreaming}
-              sensorValue={sensorValue}
+              sensorValue={sensorValue !== null ? sensorValue[i] : "-"}
             />
           ))}
         </div>

@@ -12,7 +12,7 @@ use std::sync::atomic::{AtomicBool, Ordering};  // Fixed import path for AtomicB
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct RpmReading {
     timestamp: u64,
-    value: u16,
+    values: [u16; 2],
 }
 
 // Change signature to take ownership of port directly
@@ -35,18 +35,20 @@ pub fn parse_and_emit_rpm(
                     // Process complete lines
                     while let Some(newline_pos) = accumulated.find('\n') {
                         let current_line = accumulated[..newline_pos].trim().to_string();
-                        // Remove the processed line from accumulated
                         accumulated = accumulated[newline_pos + 1..].to_string();
 
-                        // Process the current line
-                        if let Some(rpm_pos) = current_line.find("RPM1: ") {
-                            if let Ok(rpm_value) = current_line[rpm_pos + 6..].trim().parse::<u16>() {
+                        // New parsing for two RPM values split by ';'
+                        let parts: Vec<&str> = current_line.split(';').collect();
+                        if parts.len() == 2 {
+                            let rpm1_str = parts[0].trim().strip_prefix("RPM1:").unwrap_or("").trim();
+                            let rpm2_str = parts[1].trim().strip_prefix("RPM2:").unwrap_or("").trim();
+                            if let (Ok(rpm1_val), Ok(rpm2_val)) = (rpm1_str.parse::<u16>(), rpm2_str.parse::<u16>()) {
                                 let reading = RpmReading {
                                     timestamp: SystemTime::now()
                                         .duration_since(SystemTime::UNIX_EPOCH)
                                         .unwrap()
                                         .as_secs(),
-                                    value: rpm_value,
+                                    values: [rpm1_val, rpm2_val],
                                 };
 
                                 if let Err(e) = window.emit("rpm-reading", &reading) {
