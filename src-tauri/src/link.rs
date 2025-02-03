@@ -11,7 +11,7 @@ use crate::serial::SerialConnection;
 use std::time::{Duration, Instant};
 use std::io::{ErrorKind, Read};
 
-const BAUD_RATE: u32 = 9600;
+const BAUD_RATE: u32 = 115200;
 
 #[tauri::command]
 pub async fn establish_connection(

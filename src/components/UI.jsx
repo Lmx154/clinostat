@@ -14,7 +14,7 @@ const MotorBox = ({ title = "Motor", isConnected = false, sensorValue = null }) 
     };
 
     const handleConfirm = async () => {
-        const command = `SET RPM1=${rpm} ; RPM2=${rpm2}`;
+        const command = `SET RPM1=${rpm} ; RPM2=${rpm2}\n`; // ADD \n
         await writeSerial(command);
     };
 

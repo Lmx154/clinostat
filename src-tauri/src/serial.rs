@@ -106,6 +106,8 @@ pub async fn write_serial(state: State<'_, SerialConnection>, command: String) -
     if let Some(ref mut port) = *port_lock {
         port.write_all(command.as_bytes())
             .map_err(|e| e.to_string())?;
+        port.flush()
+            .map_err(|e| e.to_string())?;
         Ok(())
     } else {
         Err("Serial port not open".into())
