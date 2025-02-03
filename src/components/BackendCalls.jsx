@@ -120,3 +120,11 @@ export const usePresetManager = () => {
         deletePreset
     };
 };
+
+export const writeSerial = async (command) => {
+    try {
+        await invoke('write_serial', { command });
+    } catch (err) {
+        console.error("writeSerial error:", err);
+    }
+};

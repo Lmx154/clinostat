@@ -1,14 +1,21 @@
 import React, { useState } from 'react';
 import Settings from './Settings';
+import { writeSerial } from './BackendCalls';  // <-- New import
 
 const MotorBox = ({ title = "Motor", isConnected = false, sensorValue = null }) => {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [motorTitle, setMotorTitle] = useState(title);
     const [rpm, setRpm] = useState('');
+    const [rpm2] = useState(0); // Constant state for RPM2 starting at 0
 
     const handleApplyPreset = (preset) => {
         setMotorTitle(preset.title);
         setRpm(preset.rpm);
+    };
+
+    const handleConfirm = async () => {
+        const command = `SET RPM1=${rpm} ; RPM2=${rpm2}`;
+        await writeSerial(command);
     };
 
     return (
@@ -66,11 +73,21 @@ const MotorBox = ({ title = "Motor", isConnected = false, sensorValue = null }) 
             <div className="flex flex-row items-start space-x-4">
                 <div className="flex flex-col items-center space-y-1">
                     <span className="text-sm text-gray-600">Input</span>
-                    <input 
-                        type="text" 
-                        className="border rounded px-1 py-1 text-center w-20"
-                        placeholder="Value 1"
-                    />
+                    <div className="flex">
+                        <input 
+                            type="text" 
+                            className="border rounded px-1 py-1 text-center w-20"
+                            placeholder="Value 1"
+                            value={rpm}
+                            onChange={(e) => setRpm(e.target.value)}
+                        />
+                        <button 
+                            className="ml-2 bg-blue-500 text-white px-2 py-1 rounded"
+                            onClick={handleConfirm}
+                        >
+                            Confirm
+                        </button>
+                    </div>
                 </div>
                 <div className="flex flex-col items-center space-y-1">
                     <span className="text-sm text-gray-600">Actual</span>

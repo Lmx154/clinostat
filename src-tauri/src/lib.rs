@@ -29,6 +29,7 @@ pub fn run() {
             serial::list_serial_ports,
             serial::open_serial,
             serial::close_serial,
+            serial::write_serial,
             link::establish_connection,
             file_operations::read_presets,
             file_operations::add_preset,
