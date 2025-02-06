@@ -1,7 +1,118 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Settings from './Settings';
 
+const isValidNumber = (value) => {
+    // Only allow empty string, integers, and negative sign
+    return /^-?\d*$/.test(value);
+};
+
+const formatNumber = (value) => {
+    if (!value) return '';
+    const num = parseInt(value, 10);
+    return isNaN(num) ? '' : num.toString();
+};
+
+const ConfirmationDialog = ({ isOpen, value, onConfirm, onCancel }) => {
+    if (!isOpen) return null;
+    
+    // Initialize with the current value when dialog opens
+    const [inputValue, setInputValue] = useState(value?.toString() || '');
+
+    // Handle value changes with validation
+    const handleValueChange = (newValue) => {
+        if (isValidNumber(newValue)) {
+            setInputValue(newValue);
+        }
+    };
+
+    // Handle confirmation with proper number parsing
+    const handleConfirmClick = () => {
+        const parsedValue = parseInt(inputValue, 10);
+        if (!isNaN(parsedValue)) {
+            onConfirm(parsedValue);
+        }
+    };
+    
+    return (
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50"
+            onClick={(e) => {
+                if (e.target === e.currentTarget) onCancel();
+            }}
+        >
+            <div className="bg-gray-100/95 rounded-lg p-6 w-80 relative shadow-lg"
+                onClick={e => e.stopPropagation()}
+            >
+                <h3 className="text-lg font-semibold mb-4">Set RPM Value</h3>
+                <div className="mb-6">
+                    <input 
+                        type="text"
+                        inputMode="numeric"
+                        className="w-full border rounded px-3 py-2 text-center text-lg"
+                        placeholder="Enter RPM"
+                        value={inputValue}
+                        onChange={(e) => handleValueChange(e.target.value)}
+                        onKeyPress={(e) => {
+                            if (e.key === 'Enter') {
+                                handleConfirmClick();
+                            }
+                        }}
+                        autoFocus
+                    />
+                </div>
+                <div className="flex justify-end space-x-3">
+                    <button 
+                        onClick={onCancel}
+                        className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button 
+                        onClick={handleConfirmClick}
+                        className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+                    >
+                        Confirm
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const MotorBox = ({ motorId, title = "Motor", isConnected = false, sensorValue = null, rpm, onRpmChange, onConfirm, onApplyPreset }) => {
+    const [showConfirmation, setShowConfirmation] = useState(false);
+    const [isUpdating, setIsUpdating] = useState(false);
+    const previousRpmRef = useRef(rpm);
+
+    const handleInputClick = () => {
+        setShowConfirmation(true);
+    };
+
+    const handleConfirm = (value) => {
+        if (value !== rpm) {  // Only update if value changed
+            setIsUpdating(true);
+            previousRpmRef.current = value;
+            onRpmChange(value);
+            onConfirm();
+        }
+        setShowConfirmation(false);
+    };
+
+    useEffect(() => {
+        // Only update loading state if this is the motor that changed
+        if (isUpdating && sensorValue !== null && rpm === previousRpmRef.current) {
+            setIsUpdating(false);
+        }
+
+        // Cleanup effect when component unmounts
+        return () => {
+            setIsUpdating(false);
+        };
+    }, [sensorValue, rpm, isUpdating]);
+
+    const handleCancel = () => {
+        setShowConfirmation(false);
+    };
+
     return (
         <div className="motor-box rounded-lg p-4 w-auto min-w-[20rem] h-48 flex flex-col items-center justify-center space-y-4 bg-gradient-to-b from-gray-50 to-gray-100/90 shadow-lg relative border border-gray-200/50">
             {/* Status Indicator - Now in top left */}
@@ -16,30 +127,30 @@ const MotorBox = ({ motorId, title = "Motor", isConnected = false, sensorValue =
             <div className="flex flex-row items-start space-x-4">
                 <div className="flex flex-col items-center space-y-1">
                     <span className="text-sm text-gray-600">Input</span>
-                    <div className="flex">
-                        <input 
-                            type="text" 
-                            className="border rounded px-1 py-1 text-center w-20"
-                            placeholder="Value 1"
-                            value={rpm}
-                            onChange={(e) => onRpmChange(e.target.value)}
-                        />
-                        <button 
-                            className="ml-2 bg-blue-500 text-white px-2 py-1 rounded"
-                            onClick={onConfirm}
-                        >
-                            Confirm
-                        </button>
-                    </div>
+                    <input 
+                        type="text"
+                        className="border rounded px-1 py-1 text-center w-20 cursor-pointer hover:bg-gray-50"
+                        placeholder="RPM"
+                        value={rpm || ''}
+                        readOnly
+                        onClick={handleInputClick}
+                    />
                 </div>
                 <div className="flex flex-col items-center space-y-1">
                     <span className="text-sm text-gray-600">Actual</span>
-                    <input 
-                        type="text" 
-                        className="border rounded px-1 py-1 text-center w-20"
-                        value={sensorValue !== null ? sensorValue : "-"}
-                        readOnly
-                    />
+                    <div className="relative">
+                        <input 
+                            type="text" 
+                            className={`border rounded px-1 py-1 text-center w-20 ${isUpdating ? 'bg-gray-50' : ''}`}
+                            value={isUpdating ? "..." : (sensorValue !== null ? sensorValue : "-")}
+                            readOnly
+                        />
+                        {isUpdating && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
             {/* Settings Cog - Now in top right */}
@@ -60,6 +171,13 @@ const MotorBox = ({ motorId, title = "Motor", isConnected = false, sensorValue =
                 isOpen={false} 
                 onClose={() => {/* ...existing code... */}} 
                 onApplyPreset={onApplyPreset}
+            />
+
+            <ConfirmationDialog 
+                isOpen={showConfirmation}
+                value={rpm || ''}
+                onConfirm={handleConfirm}
+                onCancel={handleCancel}
             />
         </div>
     );
