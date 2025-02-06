@@ -1,23 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Settings from './Settings';
-import { writeSerial } from './BackendCalls';  // <-- New import
 
-const MotorBox = ({ title = "Motor", isConnected = false, sensorValue = null }) => {
-    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-    const [motorTitle, setMotorTitle] = useState(title);
-    const [rpm, setRpm] = useState('');
-    const [rpm2] = useState(0); // Constant state for RPM2 starting at 0
-
-    const handleApplyPreset = (preset) => {
-        setMotorTitle(preset.title);
-        setRpm(preset.rpm);
-    };
-
-    const handleConfirm = async () => {
-        const command = `SET RPM1=${rpm} ; RPM2=${rpm2}\n`; // ADD \n
-        await writeSerial(command);
-    };
-
+const MotorBox = ({ motorId, title = "Motor", isConnected = false, sensorValue = null, rpm, onRpmChange, onConfirm, onApplyPreset }) => {
     return (
         <div className="motor-box rounded-lg p-4 w-auto min-w-[20rem] h-48 flex flex-col items-center justify-center space-y-4 bg-gradient-to-b from-gray-50 to-gray-100/90 shadow-lg relative border border-gray-200/50">
             {/* Status Indicator with Cog Assembly */}
@@ -69,7 +53,7 @@ const MotorBox = ({ title = "Motor", isConnected = false, sensorValue = null }) 
                 </span>
             </div>
 
-            <h3 className="text-lg font-semibold">{motorTitle}</h3>
+            <h3 className="text-lg font-semibold">{title}</h3>
             <div className="flex flex-row items-start space-x-4">
                 <div className="flex flex-col items-center space-y-1">
                     <span className="text-sm text-gray-600">Input</span>
@@ -79,11 +63,11 @@ const MotorBox = ({ title = "Motor", isConnected = false, sensorValue = null }) 
                             className="border rounded px-1 py-1 text-center w-20"
                             placeholder="Value 1"
                             value={rpm}
-                            onChange={(e) => setRpm(e.target.value)}
+                            onChange={(e) => onRpmChange(e.target.value)}
                         />
                         <button 
                             className="ml-2 bg-blue-500 text-white px-2 py-1 rounded"
-                            onClick={handleConfirm}
+                            onClick={onConfirm}
                         >
                             Confirm
                         </button>
@@ -100,7 +84,7 @@ const MotorBox = ({ title = "Motor", isConnected = false, sensorValue = null }) 
                 </div>
             </div>
             <svg 
-                onClick={() => setIsSettingsOpen(true)}
+                onClick={() => {/* handle settings open if needed */}}
                 xmlns="http://www.w3.org/2000/svg" 
                 fill="none" 
                 viewBox="0 0 24 24" 
@@ -114,9 +98,9 @@ const MotorBox = ({ title = "Motor", isConnected = false, sensorValue = null }) 
             </svg>
 
             <Settings 
-                isOpen={isSettingsOpen} 
-                onClose={() => setIsSettingsOpen(false)} 
-                onApplyPreset={handleApplyPreset}
+                isOpen={false} 
+                onClose={() => {/* ...existing code... */}} 
+                onApplyPreset={onApplyPreset}
             />
         </div>
     );
