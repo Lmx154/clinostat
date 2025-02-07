@@ -1,7 +1,7 @@
-import { useState } from "react";
-import { MotorBox } from "./components/UI";
-import { SystemSettings } from "./components/Settings";
-import { useSensorStream, writeSerial } from './components/BackendCalls';
+import React, { useState, useEffect } from 'react';
+import { MotorBox } from './components/UI';
+import { SystemSettings } from './components/Settings';
+import { useSensorStream, writeSerial, usePresetManager } from './components/BackendCalls';
 import { NavBar } from './components/NavBar';
 import wallpaper from '/wallpaper.svg';
 import "./App.css";
@@ -11,6 +11,7 @@ function App() {
   // State to store RPM input for each motor (motorId: 1 and 2)
   const [motorInputs, setMotorInputs] = useState({ 1: '', 2: '' });
   const { sensorValue, isStreaming, error, startStream, stopStream } = useSensorStream();
+  const { presets, isLoading, addPreset, deletePreset } = usePresetManager();
 
   // Handler for input change (for each motor)
   const handleRpmChange = (motorId, value) => {
@@ -62,6 +63,11 @@ function App() {
                 rpm={motorInputs[motorId]}
                 onRpmChange={(value) => handleRpmChange(motorId, value)}
                 onConfirm={() => handleMotorConfirm(motorId)}
+                onApplyPreset={(value) => handlePresetApply(motorId, value)}
+                presets={presets}
+                isLoading={isLoading}
+                addPreset={addPreset}
+                deletePreset={deletePreset}
               />
             );
           })}

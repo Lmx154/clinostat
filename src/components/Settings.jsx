@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { usePresetManager } from './BackendCalls';
+import React, { useState } from 'react';
 
-const Settings = ({ isOpen, onClose, onApplyPreset }) => {
-    const { presets, isLoading, addPreset, deletePreset } = usePresetManager();
+const Settings = ({ isOpen, onClose, onApplyPreset, presets, isLoading, addPreset, deletePreset }) => {
     const [newPresetRpm, setNewPresetRpm] = useState('');
     const [isAddingPreset, setIsAddingPreset] = useState(false);
 

@@ -1,7 +1,20 @@
 import React, { useState } from 'react';
 import Settings from './Settings';
 
-const MotorBox = ({ motorId, title = "Motor", isConnected = false, sensorValue = null, rpm, onRpmChange, onConfirm, onApplyPreset }) => {
+const MotorBox = ({ 
+    motorId, 
+    title = "Motor", 
+    isConnected = false, 
+    sensorValue = null, 
+    rpm, 
+    onRpmChange, 
+    onConfirm, 
+    onApplyPreset,
+    presets,
+    isLoading,
+    addPreset,
+    deletePreset 
+}) => {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
     return (
@@ -62,6 +75,10 @@ const MotorBox = ({ motorId, title = "Motor", isConnected = false, sensorValue =
                 isOpen={isSettingsOpen} 
                 onClose={() => setIsSettingsOpen(false)} 
                 onApplyPreset={onApplyPreset}
+                presets={presets}
+                isLoading={isLoading}
+                addPreset={addPreset}
+                deletePreset={deletePreset}
             />
         </div>
     );
