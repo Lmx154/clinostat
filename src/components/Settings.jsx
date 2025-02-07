@@ -54,7 +54,7 @@ const Settings = ({ isOpen, onClose, onApplyPreset }) => {
                 if (e.target === e.currentTarget) handleClose();
             }}
         >
-            <div className="bg-gray-100/95 rounded-lg p-6 w-96 relative shadow-lg"
+            <div className="bg-gray-100/95 rounded-lg p-6 w-80 max-h-[80vh] relative shadow-lg"
                 onClick={e => e.stopPropagation()}
             >
                 <svg 
@@ -75,7 +75,7 @@ const Settings = ({ isOpen, onClose, onApplyPreset }) => {
 
                 <h2 className="text-2xl font-bold mb-4">Presets</h2>
                 
-                <div className="space-y-4">
+                <div className="space-y-4 max-h-[50vh] overflow-y-auto">
                     {presets.map((rpm, index) => (
                         <div 
                             key={`${rpm}-${index}`}  // Better key for React
@@ -112,7 +112,7 @@ const Settings = ({ isOpen, onClose, onApplyPreset }) => {
                             }
                         }}
                     >
-                        <div className="bg-gray-100/95 rounded-lg p-6 w-96 relative shadow-lg"
+                        <div className="bg-gray-100/95 rounded-lg p-6 w-80 max-h-[80vh] relative shadow-lg"
                             onClick={e => e.stopPropagation()}
                         >
                             <h2 className="text-2xl font-bold mb-4">Add Preset</h2>
@@ -154,7 +154,7 @@ const SystemSettings = ({ isOpen, onClose }) => {
             }}
         >
             <div 
-                className="bg-gray-100/95 rounded-lg p-6 w-96 relative shadow-lg"
+                className="bg-gray-100/95 rounded-lg p-6 w-80 max-h-[80vh] relative shadow-lg"
                 onClick={e => e.stopPropagation()}
             >
                 <svg 
@@ -175,7 +175,7 @@ const SystemSettings = ({ isOpen, onClose }) => {
 
                 <h2 className="text-2xl font-bold mb-4">System Settings</h2>
                 
-                <div className="space-y-4">
+                <div className="space-y-4 max-h-[50vh] overflow-y-auto">
                     <div className="setting-item">
                         <h3 className="text-lg font-semibold">System Setting 1</h3>
                         <input type="text" className="w-full p-2 border rounded" />

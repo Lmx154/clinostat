@@ -1,14 +1,26 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 export const NavBar = ({ error, isStreaming, onConnectionToggle, onOpenSettings }) => {
+    const [displayError, setDisplayError] = useState(error);
+
+    useEffect(() => {
+        if (error) {
+            setDisplayError(error);
+            const timer = setTimeout(() => {
+                setDisplayError(null);
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [error]);
+
     return (
         <div className="fixed bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-gray-100 to-gray-50 shadow-[0_-2px_4px_-1px_rgba(0,0,0,0.1)] border-t border-gray-200/50 z-50">
             <div className="h-full px-4 flex items-center justify-between">
                 {/* Error Messages */}
                 <div className="flex-1 truncate">
-                    {error && (
+                    {displayError && (
                         <div className="text-red-500 text-sm truncate">
-                            Error: {error.toString()}
+                            Error: {displayError.toString()}
                         </div>
                     )}
                 </div>

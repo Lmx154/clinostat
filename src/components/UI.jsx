@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Settings from './Settings';
 
 const MotorBox = ({ motorId, title = "Motor", isConnected = false, sensorValue = null, rpm, onRpmChange, onConfirm, onApplyPreset }) => {
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
     return (
         <div className="motor-box rounded-lg p-4 w-auto min-w-[20rem] h-48 flex flex-col items-center justify-center space-y-4 bg-gradient-to-b from-gray-50 to-gray-100/90 shadow-lg relative border border-gray-200/50">
             {/* Status Indicator - Now in top left */}
@@ -44,7 +46,7 @@ const MotorBox = ({ motorId, title = "Motor", isConnected = false, sensorValue =
             </div>
             {/* Settings Cog - Now in top right */}
             <svg 
-                onClick={() => {/* handle settings open if needed */}}
+                onClick={() => setIsSettingsOpen(true)}
                 xmlns="http://www.w3.org/2000/svg" 
                 fill="none" 
                 viewBox="0 0 24 24" 
@@ -57,8 +59,8 @@ const MotorBox = ({ motorId, title = "Motor", isConnected = false, sensorValue =
             </svg>
 
             <Settings 
-                isOpen={false} 
-                onClose={() => {/* ...existing code... */}} 
+                isOpen={isSettingsOpen} 
+                onClose={() => setIsSettingsOpen(false)} 
                 onApplyPreset={onApplyPreset}
             />
         </div>
