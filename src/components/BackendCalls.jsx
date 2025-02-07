@@ -81,15 +81,19 @@ export const usePresetManager = () => {
         }
     }, []);
 
-    const addPreset = async (rpm) => {
+    const addPreset = async (name, rpm) => {
         setIsLoading(true);
         try {
-            await invoke('add_preset', { rpm: parseInt(rpm) });
-            await loadPresets();
-        } catch (err) {
-            setError(err);
-            console.error('Failed to add preset:', err);
-            throw err;
+            await invoke('add_preset', {
+                input: {
+                    name: name,
+                    rpm: rpm
+                }
+            });
+            await loadPresets(); // Add this line to refresh the presets
+        } catch (error) {
+            console.error('Failed to add preset:', error);
+            throw error;
         } finally {
             setIsLoading(false);
         }

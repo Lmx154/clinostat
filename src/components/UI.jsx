@@ -1,7 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Settings from './Settings';
 
-const MotorBox = ({ motorId, title = "Motor", isConnected = false, sensorValue = null, rpm, onRpmChange, onConfirm, onApplyPreset }) => {
+const MotorBox = ({ 
+    motorId, 
+    title = "Motor", 
+    isConnected = false, 
+    sensorValue = null, 
+    rpm, 
+    onRpmChange, 
+    onConfirm, 
+    onApplyPreset,
+    presets,
+    isLoading,
+    addPreset,
+    deletePreset 
+}) => {
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
     return (
         <div className="motor-box rounded-lg p-4 w-auto min-w-[20rem] h-48 flex flex-col items-center justify-center space-y-4 bg-gradient-to-b from-gray-50 to-gray-100/90 shadow-lg relative border border-gray-200/50">
             {/* Status Indicator - Now in top left */}
@@ -17,6 +32,12 @@ const MotorBox = ({ motorId, title = "Motor", isConnected = false, sensorValue =
                 <div className="flex flex-col items-center space-y-1">
                     <span className="text-sm text-gray-600">Input</span>
                     <div className="flex">
+                        <button 
+                            className="mr-2 bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition-colors text-sm"
+                            onClick={onConfirm}
+                        >
+                            Set
+                        </button>
                         <input 
                             type="text" 
                             className="border rounded px-1 py-1 text-center w-20"
@@ -24,12 +45,6 @@ const MotorBox = ({ motorId, title = "Motor", isConnected = false, sensorValue =
                             value={rpm}
                             onChange={(e) => onRpmChange(e.target.value)}
                         />
-                        <button 
-                            className="ml-2 bg-blue-500 text-white px-2 py-1 rounded"
-                            onClick={onConfirm}
-                        >
-                            Confirm
-                        </button>
                     </div>
                 </div>
                 <div className="flex flex-col items-center space-y-1">
@@ -44,7 +59,7 @@ const MotorBox = ({ motorId, title = "Motor", isConnected = false, sensorValue =
             </div>
             {/* Settings Cog - Now in top right */}
             <svg 
-                onClick={() => {/* handle settings open if needed */}}
+                onClick={() => setIsSettingsOpen(true)}
                 xmlns="http://www.w3.org/2000/svg" 
                 fill="none" 
                 viewBox="0 0 24 24" 
@@ -57,9 +72,16 @@ const MotorBox = ({ motorId, title = "Motor", isConnected = false, sensorValue =
             </svg>
 
             <Settings 
-                isOpen={false} 
-                onClose={() => {/* ...existing code... */}} 
-                onApplyPreset={onApplyPreset}
+                isOpen={isSettingsOpen} 
+                onClose={() => setIsSettingsOpen(false)} 
+                onApplyPreset={(rpm) => {
+                    onRpmChange(rpm.toString());  // Convert RPM to string for input
+                    onApplyPreset(rpm);
+                }}
+                presets={presets}
+                isLoading={isLoading}
+                addPreset={addPreset}
+                deletePreset={deletePreset}
             />
         </div>
     );
