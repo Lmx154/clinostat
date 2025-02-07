@@ -2,16 +2,20 @@ import React, { useState } from 'react';
 
 const Settings = ({ isOpen, onClose, onApplyPreset, presets, isLoading, addPreset, deletePreset }) => {
     const [newPresetRpm, setNewPresetRpm] = useState('');
+    const [newPresetName, setNewPresetName] = useState('');
     const [isAddingPreset, setIsAddingPreset] = useState(false);
+    const [error, setError] = useState('');
 
     const handleAddPreset = async () => {
-        if (!newPresetRpm || isLoading) return;
+        if (!newPresetRpm || !newPresetName || isLoading) return;
         
         try {
-            await addPreset(newPresetRpm);
+            await addPreset(newPresetName, Number(newPresetRpm));
             setNewPresetRpm('');
+            setNewPresetName('');
             setIsAddingPreset(false);
         } catch (error) {
+            setError(error.toString());
             console.error('Failed to add preset:', error);
         }
     };
@@ -74,17 +78,17 @@ const Settings = ({ isOpen, onClose, onApplyPreset, presets, isLoading, addPrese
                 <h2 className="text-2xl font-bold mb-4">Presets</h2>
                 
                 <div className="space-y-4 max-h-[50vh] overflow-y-auto">
-                    {presets.map((rpm, index) => (
+                    {presets.map((preset, index) => (
                         <div 
-                            key={`${rpm}-${index}`}  // Better key for React
+                            key={`${preset.rpm}-${index}`}
                             className="preset-item p-2 border rounded flex justify-between items-center"
                         >
-                            <span onClick={() => !isLoading && handleApplyPreset(rpm)} 
+                            <span onClick={() => !isLoading && handleApplyPreset(preset.rpm)} 
                                   className={`cursor-pointer flex-grow ${isLoading ? 'opacity-50' : ''}`}>
-                                RPM: {rpm}
+                                {preset.name} ({preset.rpm} RPM)
                             </span>
                             <button 
-                                onClick={() => handleDeletePreset(rpm)}
+                                onClick={() => handleDeletePreset(preset.rpm)}
                                 disabled={isLoading}
                                 className={`ml-2 text-red-500 hover:text-red-700 
                                     ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -115,6 +119,24 @@ const Settings = ({ isOpen, onClose, onApplyPreset, presets, isLoading, addPrese
                         >
                             <h2 className="text-2xl font-bold mb-4">Add Preset</h2>
                             
+                            {error && (
+                                <div className="mb-4 p-2 bg-red-100 border border-red-400 text-red-700 rounded">
+                                    {error}
+                                </div>
+                            )}
+                            
+                            <input 
+                                type="text"
+                                placeholder="Preset Name"
+                                value={newPresetName}
+                                onChange={(e) => {
+                                    setError('');
+                                    setNewPresetName(e.target.value);
+                                }}
+                                disabled={isLoading}
+                                className="w-full mb-2 p-2 border rounded"
+                                autoFocus
+                            />
                             <input 
                                 type="number" 
                                 placeholder="RPM" 
@@ -123,13 +145,12 @@ const Settings = ({ isOpen, onClose, onApplyPreset, presets, isLoading, addPrese
                                 onKeyPress={handleKeyPress}
                                 disabled={isLoading}
                                 className="w-full mb-2 p-2 border rounded"
-                                autoFocus
                             />
                             <button 
                                 onClick={handleAddPreset} 
-                                disabled={isLoading || !newPresetRpm}
+                                disabled={isLoading || !newPresetRpm || !newPresetName}
                                 className={`w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600 
-                                    ${(isLoading || !newPresetRpm) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    {(isLoading || !newPresetRpm || !newPresetName) ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
                                 {isLoading ? 'Adding...' : 'Add'}
                             </button>

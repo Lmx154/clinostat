@@ -1,4 +1,9 @@
-RPM: 150
-RPM: 175
-RPM: 200
-RPM: 100
+NAME: Very Slow	RPM: 25
+NAME: Slow	RPM: 50
+NAME: Medium Slow	RPM: 75
+NAME: Medium	RPM: 100
+NAME: Medium Fast	RPM: 125
+NAME: Fast	RPM: 150
+NAME: Maximum	RPM: 200
+NAME: test	RPM: 123
+NAME: testtt	RPM: 1111

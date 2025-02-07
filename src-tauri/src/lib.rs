@@ -25,15 +25,17 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .manage(serial_connection)
         .invoke_handler(tauri::generate_handler![
-            // TODO: Replace mockserial with real serial data streaming
+            // Serial commands
             serial::list_serial_ports,
             serial::open_serial,
             serial::close_serial,
             serial::write_serial,
+            // Link commands
             link::establish_connection,
+            // File operation commands - explicitly listing all parameters
+            file_operations::initialize_presets,
             file_operations::read_presets,
             file_operations::add_preset,
-            file_operations::update_preset,
             file_operations::delete_preset
         ])
         .run(tauri::generate_context!())
