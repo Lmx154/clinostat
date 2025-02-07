@@ -32,6 +32,12 @@ const MotorBox = ({
                 <div className="flex flex-col items-center space-y-1">
                     <span className="text-sm text-gray-600">Input</span>
                     <div className="flex">
+                        <button 
+                            className="mr-2 bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition-colors text-sm"
+                            onClick={onConfirm}
+                        >
+                            Set
+                        </button>
                         <input 
                             type="text" 
                             className="border rounded px-1 py-1 text-center w-20"
@@ -39,12 +45,6 @@ const MotorBox = ({
                             value={rpm}
                             onChange={(e) => onRpmChange(e.target.value)}
                         />
-                        <button 
-                            className="ml-2 bg-blue-500 text-white px-2 py-1 rounded"
-                            onClick={onConfirm}
-                        >
-                            Confirm
-                        </button>
                     </div>
                 </div>
                 <div className="flex flex-col items-center space-y-1">

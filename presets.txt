@@ -5,5 +5,3 @@ NAME: Medium	RPM: 100
 NAME: Medium Fast	RPM: 125
 NAME: Fast	RPM: 150
 NAME: Maximum	RPM: 200
-NAME: test	RPM: 123
-NAME: testtt	RPM: 1111
