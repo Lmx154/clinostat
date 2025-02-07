@@ -74,7 +74,10 @@ const MotorBox = ({
             <Settings 
                 isOpen={isSettingsOpen} 
                 onClose={() => setIsSettingsOpen(false)} 
-                onApplyPreset={onApplyPreset}
+                onApplyPreset={(rpm) => {
+                    onRpmChange(rpm.toString());  // Convert RPM to string for input
+                    onApplyPreset(rpm);
+                }}
                 presets={presets}
                 isLoading={isLoading}
                 addPreset={addPreset}

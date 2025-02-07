@@ -21,7 +21,7 @@ const Settings = ({ isOpen, onClose, onApplyPreset, presets, isLoading, addPrese
     };
 
     const handleApplyPreset = (rpm) => {
-        onApplyPreset(rpm);
+        onApplyPreset(rpm);  // This will now update both the motor and input field
         onClose();
     };
 
