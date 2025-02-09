@@ -2,7 +2,6 @@
 //use an emitter to send the parsed data to the front end
 //data_operations.rs
 use serde::{Deserialize, Serialize};
-use std::time::SystemTime;
 use tauri::{Window, Emitter};
 use std::io::Read;
 use serialport::SerialPort;
@@ -11,7 +10,7 @@ use std::sync::atomic::{AtomicBool, Ordering};  // Fixed import path for AtomicB
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct RpmReading {
-    timestamp: u64,
+    timestamp: String,  // Changed to String to store the formatted timestamp
     values: [u16; 2],
 }
 
@@ -37,23 +36,26 @@ pub fn parse_and_emit_rpm(
                         let current_line = accumulated[..newline_pos].trim().to_string();
                         accumulated = accumulated[newline_pos + 1..].to_string();
 
-                        // New parsing for two RPM values split by ';'
-                        let parts: Vec<&str> = current_line.split(';').collect();
-                        if parts.len() == 2 {
-                            let rpm1_str = parts[0].trim().strip_prefix("RPM1:").unwrap_or("").trim();
-                            let rpm2_str = parts[1].trim().strip_prefix("RPM2:").unwrap_or("").trim();
-                            if let (Ok(rpm1_val), Ok(rpm2_val)) = (rpm1_str.parse::<u16>(), rpm2_str.parse::<u16>()) {
-                                let reading = RpmReading {
-                                    timestamp: SystemTime::now()
-                                        .duration_since(SystemTime::UNIX_EPOCH)
-                                        .unwrap()
-                                        .as_secs(),
-                                    values: [rpm1_val, rpm2_val],
-                                };
+                        // Parse timestamp and RPM values
+                        if let Some(timestamp_end) = current_line.find("RPM1:") {
+                            let timestamp = current_line[1..timestamp_end].trim().to_string();
+                            let data_part = &current_line[timestamp_end..];
+                            
+                            let parts: Vec<&str> = data_part.split(';').collect();
+                            if parts.len() == 2 {
+                                let rpm1_str = parts[0].trim().strip_prefix("RPM1:").unwrap_or("").trim();
+                                let rpm2_str = parts[1].trim().strip_prefix("RPM2:").unwrap_or("").trim();
+                                
+                                if let (Ok(rpm1_val), Ok(rpm2_val)) = (rpm1_str.parse::<u16>(), rpm2_str.parse::<u16>()) {
+                                    let reading = RpmReading {
+                                        timestamp,
+                                        values: [rpm1_val, rpm2_val],
+                                    };
 
-                                if let Err(e) = window.emit("rpm-reading", &reading) {
-                                    eprintln!("Failed to emit RPM reading: {:?}", e);
-                                    return;
+                                    if let Err(e) = window.emit("rpm-reading", &reading) {
+                                        eprintln!("Failed to emit RPM reading: {:?}", e);
+                                        return;
+                                    }
                                 }
                             }
                         }
