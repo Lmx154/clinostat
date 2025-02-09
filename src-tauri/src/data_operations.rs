@@ -2,7 +2,6 @@
 //use an emitter to send the parsed data to the front end
 //data_operations.rs
 use serde::{Deserialize, Serialize};
-use std::time::SystemTime;
 use tauri::{Window, Emitter};
 use std::io::Read;
 use serialport::SerialPort;
