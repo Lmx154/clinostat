@@ -79,7 +79,7 @@ Contributions are welcome from members of the UTRGV S.A.R.E. software team!
 
 ### Current Contributors
 - Luis Martinez ([GitHub](https://github.com/Lmx154))
-- Baldemar Guajardo ([GitHub](https://github.com/godxrs))
+- Baldemar Guajardo ([GitHub](https://github.com/BaldeGIII))
 
 Please feel free to submit a Pull Request.
 
